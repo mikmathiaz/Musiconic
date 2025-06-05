@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:musiconic/pages/home_page.dart';
+import 'package:musiconic/pages/login_page.dart';
 
 void main() => runApp(const MusiconicApp());
 
@@ -24,17 +26,36 @@ class MusiconicApp extends StatelessWidget {
   }
 }
 
-class SplashScreen extends StatelessWidget {
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const HomePage()),
-      );
-    });
+  State<SplashScreen> createState() => _SplashScreenState();
+}
 
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _checkLogin();
+  }
+
+  Future<void> _checkLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isLoggedIn = prefs.getString('username') != null;
+
+    await Future.delayed(const Duration(seconds: 2));
+    if (mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => isLoggedIn ? const HomePage() : const LoginPage(),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return const Scaffold(
       body: Center(
         child: Text(
